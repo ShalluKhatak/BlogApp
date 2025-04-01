@@ -1,12 +1,27 @@
 import express from 'express';
+import cookieParser from 'cookie-parser';
+import dotenv from 'dotenv';
+import { HomeRouter } from './Router/HomeRouter.js';
+import { LoginRouter } from './Router/LoginRouter.js';
+import { SignUpRouter } from './Router/SignUpRouter.js';
 
-const PORT = 3001;
 const app = express();
 
-app.get('/', (req, res) => {
-  res.send('Hello server!');
-});
+dotenv.config();
+const PORT = process.env.Server_PORT;
+app.use(express.json());
+app.use(express.urlencoded());
+app.use(express.static('assets'));
+app.use(cookieParser());
 
-app.listen(PORT, () => {
-  console.log('Server is running on port:', PORT);
-});
+app.use('/', HomeRouter);
+app.use('/signup', SignUpRouter);
+app.use('/login', LoginRouter);
+
+app
+  .listen(PORT, () => {
+    console.log('Server is running on port:', PORT);
+  })
+  .on('error', (err) => {
+    console.log('Fail to start server due to this error : ', err);
+  });
