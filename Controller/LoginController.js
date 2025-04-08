@@ -1,8 +1,57 @@
+import { CHECK_USER_WITH_EMAIL } from '../db/query.js';
+import DB_Connection from '../Util/DbConnection.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import { filePath } from '../Util/UtilFunction.js';
 
-const LoginController = (req, res) => {
+export const LoginController = (req, res) => {
   const homeFilePath = filePath('View', 'login.html');
   res.sendFile(homeFilePath);
 };
 
-export default LoginController;
+export const LoginControllerPost = async (req, res) => {
+  console.log('3333333 :>> ', 3333333);
+  const { email, password } = req?.body;
+  console.log('req?.body :>> ', req?.body);
+  if (!(Boolean(email?.trim()) && Boolean(password?.trim()))) {
+    return res.status(400).send('Something went wrong');
+  }
+  const [db_cont] = await DB_Connection.query(CHECK_USER_WITH_EMAIL, [email]);
+  if (db_cont.length === 0) {
+    return res.status(400).send('user does not exists with this mail.');
+  }
+
+  const {
+    password: user_password = ' ',
+    email: user_email = ' ',
+    name: user_name = ' ',
+  } = db_cont[0];
+
+  const match = await bcrypt.compare(password, user_password);
+  if (match) {
+    const token = jwt.sign(
+      {
+        email: user_email,
+        name: user_name,
+      },
+      process.env.SECRET_KEY,
+      {
+        expiresIn: '1h',
+      },
+    );
+
+    console.log('token:>>', token);
+    res.cookie('token', token, {
+      httpOnly: false,
+      secure: true,
+      sameSite: 'Strict',
+    });
+    // res.send('Login');
+
+    res.status(200).json({
+      msg: 'login',
+    });
+  } else {
+    return res.status(400).send('Something went wrong');
+  }
+};

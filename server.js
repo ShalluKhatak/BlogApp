@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { HomeRouter } from './Router/HomeRouter.js';
 import { LoginRouter } from './Router/LoginRouter.js';
 import { SignUpRouter } from './Router/SignUpRouter.js';
+import { LogoutRouter } from './Router/LogoutRouter.js';
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(cookieParser());
 app.use('/', HomeRouter);
 app.use('/signup', SignUpRouter);
 app.use('/login', LoginRouter);
+app.use('/logout', LogoutRouter);
 
 app
   .listen(PORT, () => {
