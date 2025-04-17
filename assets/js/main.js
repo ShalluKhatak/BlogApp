@@ -277,4 +277,72 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   window.addEventListener('load', checkToken);
+
+  // function blogCard(data) {
+  //   const container = document.createDocumentFragment(); // Or use a div if you want a container node
+
+  //   if (Array.isArray(data) && data.length > 0) {
+  //     data.forEach((item) => {
+  //       const colDiv = document.createElement('div');
+  //       colDiv.className =
+  //         'col-lg-4 col-md-6 portfolio-item isotope-item filter-app';
+
+  //       const img = document.createElement('img');
+  //       img.src = item?.image || '';
+  //       img.className = 'img-fluid';
+  //       img.alt = '';
+
+  //       const infoDiv = document.createElement('div');
+  //       infoDiv.className = 'portfolio-info';
+
+  //       const title = document.createElement('h4');
+  //       title.textContent = item?.title || '';
+
+  //       const description = document.createElement('p');
+  //       description.textContent = item?.description || '';
+
+  //       infoDiv.appendChild(title);
+  //       infoDiv.appendChild(description);
+  //       colDiv.appendChild(img);
+  //       colDiv.appendChild(infoDiv);
+  //       container.appendChild(colDiv);
+  //     });
+  //   }
+
+  //   return container;
+  // }
+
+  function blogCard(data) {
+    if (Array.isArray(data) && data.length > 0) {
+      return data
+        .map(
+          (item) => `
+        <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-app">
+          <img src="${item?.image || ''}" class="img-fluid" alt="" />
+          <div class="portfolio-info">
+            <h4>${item?.title || ''}</h4>
+            <p>${item?.description || ''}</p>
+          </div>
+        </div>
+      `,
+        )
+        .join('');
+    }
+    return '';
+  }
+
+  const getBlog = async () => {
+    const login_user = await fetch('http://localhost:3000/get_blog');
+    let data = await login_user.json();
+    console.log('login_user :>> ', login_user);
+    console.log('data :>> ', data);
+    const cards = blogCard(data);
+    let blog_element = document.getElementById('blog_warper');
+    if (Boolean(blog_element)) {
+      // blog_element.append(cards);
+      blog_element.innerHTML = cards;
+      blog_element.style.height = 'auto';
+    }
+  };
+  getBlog();
 });
